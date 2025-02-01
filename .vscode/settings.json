@@ -1,0 +1,6 @@
+{
+    "python.analysis.extraPaths": [
+        "./src/json_",
+        "./src/json_"
+    ]
+}

@@ -1,17 +1,38 @@
-{
-    "101": {
-        "name": "John Doe",
-        "email": "john.doe@example.com",
-        "youtube_link": "https://youtu.be/dQw4w9WgXcQ"
+[
+    {
+        "id": "101",
+        "name": "js",
+        "address": {
+            "city": "New York",
+            "postal_code": "10001"
+        },
+        "friends": [
+            {
+                "id": "201",
+                "name": "Alice"
+            },
+            {
+                "id": "202",
+                "name": "Bob"
+            }
+        ]
     },
-    "102": {
-        "name": "Jane Smith",
-        "email": "jane.smith@example.com",
-        "youtube_link": "https://youtu.be/example2"
-    },
-    "103": {
-        "name": "Alice Johnson",
-        "email": "alice.johnson@example.com",
-        "youtube_link": "https://youtu.be/example3"
+    {
+        "id": "102",
+        "name": "Jane",
+        "address": {
+            "city": "Los Angeles",
+            "postal_code": "90001"
+        },
+        "friends": [
+            {
+                "id": "203",
+                "name": "Tom"
+            },
+            {
+                "id": "204",
+                "name": "Jerry"
+            }
+        ]
     }
-}
+]
