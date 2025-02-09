@@ -1,224 +1,103 @@
-# import click
-# import json
-
-# @click.command()
-# @click.option("--file", required=True, help="Path to JSON file")
-# @click.option("--action", required=True, type=click.Choice(["add", "update", "delete", "read", "list"]), help="Action to perform")
-# @click.option("--id", help="Primary key of the object")
-# @click.option("--key", help="Attribute key to add or update")
-# @click.option("--value", help="Value to add or update")
-# def main(file, action, id, key, value):
-#     """JSON CLI Tool"""
-#     # Read the JSON data from the file
-#     with open(file, "r") as f:
-#         data = json.load(f)
-    
-#     if action == "add":
-#         # Ensure the ID exists
-#         if id not in data:
-#             data[id] = {}
-#             click.echo("ID or key not found.")
-#             return
-        
-#         # Add the new key-value pair
-#         data[id][key] = value
-    
-#     elif action == "update":
-#         # Update an existing key-value pair
-#         if id in data and key in data[id]:
-#             data[id][key] = value
-#         else:
-#             click.echo("ID or key not found.")
-#             return
-
-#     elif action == "delete":
-#         # Delete the key-value pair
-#         if id in data and key in data[id]:
-#             del data[id][key]
-#         else:
-#             click.echo("ID or key not found.")
-#             return
-
-#     elif action == "read":
-#         # Read and display the contents
-#         click.echo(json.dumps(data, indent=4))
-
-#     elif action == "list":
-#         # List all keys for the given ID
-#         if id in data:
-#             click.echo(json.dumps(data[id], indent=4))
-#         else:
-#             click.echo("ID not found.")
-#             return
-
-#     # Write the updated data back to the file
-#     with open(file, "w") as f:
-#         json.dump(data, f, indent=4)
-
-#     click.echo(f"Executed {action} on {file} with ID={id}, KEY={key}, VALUE={value}")
-
-# if __name__ == "__main__":
-#     main()
-
-# import argparse
-# import json_handler
-
-# def print_menu():
-#     """Displays the available commands when the tool is run with 'start'."""
-#     menu = """
-#     🛠️ JSON CLI Tool 🛠️
-#     ------------------------------------
-#     Select an action:
-
-#     [1] Add a new attribute to an object
-#     [2] Update an existing attribute
-#     [3] Delete an object based on primary key
-#     [4] Read an object by primary key
-#     [5] List all primary keys in the JSON file
-#     [6] Exit
-
-#     Type the number and press Enter to continue.
-#     """
-
-#     print(menu)
-
-# def handle_selection():
-#     """Handles user selection from the menu."""
-#     handler = json_handler("examples/sample.json")  # Your JSON file
-#     while True:
-#         print_menu()
-#         choice = input("👉 Enter your choice: ").strip()
-
-#         if choice == "1":
-#             pk = input("Enter primary key: ").strip()
-#             key = input("Enter key to add: ").strip()
-#             value = input("Enter value: ").strip()
-#             handler.add_attribute(pk, key, value)
-#             print("✅ Attribute added successfully!")
-
-#         elif choice == "2":
-#             pk = input("Enter primary key: ").strip()
-#             key = input("Enter key to update: ").strip()
-#             value = input("Enter new value: ").strip()
-#             handler.update_attribute(pk, key, value)
-#             print("✅ Attribute updated successfully!")
-
-#         elif choice == "3":
-#             pk = input("Enter primary key: ").strip()
-#             handler.delete_object(pk)
-#             print("✅ Object deleted successfully!")
-
-#         elif choice == "4":
-#             pk = input("Enter primary key: ").strip()
-#             obj = handler.read_object(pk)
-#             print(f"📄 Object Data: {obj}" if obj else "❌ Object not found.")
-
-#         elif choice == "5":
-#             primary_keys = handler.list_primary_keys()
-#             print("📌 Primary Keys:")
-#             for index, key in enumerate(primary_keys, start=1):
-#                 print(f"  [{index}] {key}")
-
-#         elif choice == "6":
-#             print("👋 Exiting...")
-#             break
-
-#         else:
-#             print("❌ Invalid choice. Please try again.")
-
-# if __name__ == "__main__":
-#     parser = argparse.ArgumentParser(description="JSON Tool CLI")
-#     parser.add_argument("action", help="Command to execute", nargs="?")
-
-#     args = parser.parse_args()
-
-#     if args.action == "json-tool start":
-#         handle_selection()
-#     else:
-#         print("❌ Unknown command. Use 'json-tool start' to begin.")
-
-# import sys
-# print("Arguments received:", sys.argv)
-
 import argparse
-import sys
-from json_handler import JSONHandler # Ensure correct import
+import textwrap
+from json_handler import JSONHandler
 
-def print_menu():
-    """Displays the available commands when the tool is run with 'start'."""
+# Display actions menu
+def actions_menu():
     menu = """
-    🛠️ JSON CLI Tool 🛠️
-    ------------------------------------
-    Select an action:
+    [Welcome to json-tool]
 
-    [1] Add a new attribute to an object
-    [2] Update an existing attribute
-    [3] Delete an object based on primary key
-    [4] Read an object by primary key
-    [5] List all primary keys in the JSON file
+    [1] Add Attribute
+    [2] Update Attribute
+    [3] Delete Attribute
+    [4] Read Attribute
+    [5] Show All Reference IDs
     [6] Exit
-
-    Type the number and press Enter to continue.
     """
-    print(menu)
+    print(textwrap.dedent(menu))
 
-def handle_selection():
-    """Handles user selection from the menu."""
-    handler = JSONHandler("examples/sample.json")  # Ensure this is a class in json_handler.py
+def helps_menu():
+    help_text = """
+    Commands:
+        start               Start the json-tool CLI [json-tool start]
+        help                Show help message [json-tool help]
+
+    How to:
+        nested key          Specify nested keys in object [user.profile.name]
+
+    Helpers:
+        -o key=value        Create an object with key-value pairs [-o key1=-s value1 key2=-i 42 key3=-b true]
+        -s value            Create a string value [-s John]
+        -i value            Create an integer value [-i 123]
+        -f value            Create a float value [-f 9.8]
+        -b value            Create a boolean value [-b true]
+        -c value            Create a character value [-c j]
+        -a                  Create an array [-a empty]
+
+    """
+    print(textwrap.dedent(help_text))
+
+def parse_input_value(input_str):
+    parts = input_str.strip().split(" ", 1)
+    if len(parts) == 2 and parts[0] in ["-s", "-i", "-f", "-b", "-c", "-o", "-a"]:
+        return parts[0], parts[1]
+    return None, input_str 
+
+# Handle actions menu
+def handle_actions_menu():
+    handler = JSONHandler("examples/sample.json")
     
     while True:
-        print_menu()
-        choice = input("👉 Enter your choice: ").strip()
+        actions_menu()
+        choice = input("Select any option and press Enter to continue> ").strip()
 
-        if choice == "1":
-            pk = input("Enter primary key: ").strip()
-            key = input("Enter key to add: ").strip()
-            value = input("Enter value: ").strip()
-            handler.add_attribute(pk, key, value)
-            print("✅ Attribute added successfully!")
+        if choice == "1":  # Add a new attribute
+            id = input("\nPlease specify reference ID of object> ").strip()
+            key = input(f"[{id}] - Please specify key to update> ").strip()
+            value_input = input(f"[{id}] - Please specify new value for [{key}]> ").strip()
+            flag, value = parse_input_value(value_input)
+            print(handler.add_attribute(id, key, flag, value))
 
-        elif choice == "2":
-            pk = input("Enter primary key: ").strip()
-            key = input("Enter key to update: ").strip()
-            value = input("Enter new value: ").strip()
-            handler.update_attribute(pk, key, value)
-            print("✅ Attribute updated successfully!")
+        elif choice == "2":  # Update an existing attribute
+            id = input("\nPlease specify reference ID of object> ").strip()
+            key = input(f"[{id}] - Please specify key to update> ").strip()
+            value_input = input(f"[{id}] - Please specify new value for [{key}]> ").strip()
+            flag, value = parse_input_value(value_input)
+            print(handler.update_attribute(id, key, flag, value))
 
-        elif choice == "3":
-            pk = input("Enter primary key: ").strip()
-            handler.delete_object(pk)
-            print("✅ Object deleted successfully!")
+        elif choice == "3":  # Delete an object
+            id = input("\nPlease specify reference ID of object> ").strip()
+            print(handler.delete_attribute(id))
 
-        elif choice == "4":
-            pk = input("Enter primary key: ").strip()
-            obj = handler.read_object(pk)
-            print(f"📄 Object Data: {obj}" if obj else "❌ Object not found.")
+        elif choice == "4":  # Read an object
+            id = input("\nPlease specify reference ID of object> ").strip()
+            print(handler.read_attribute(id))
 
-        elif choice == "5":
-            primary_keys = handler.list_primary_keys()
-            print("📌 Primary Keys:")
+        elif choice == "5":  # Show all reference IDs
+            primary_keys = handler.read_all_reference_ids()
+            print("All Reference IDs:")
             for index, key in enumerate(primary_keys, start=1):
-                print(f"  [{index}] {key}")
+                print(f"   [{index}] {key}")
 
-        elif choice == "6":
-            print("👋 Exiting...")
+        elif choice == "6":  # Show help menu
+            print("\nExiting... Bye Bye!")
             break
 
         else:
-            print("❌ Invalid choice. Please try again.")
+            print("\nInvalid option. Please try again.")
 
 def main():
     parser = argparse.ArgumentParser(description="JSON Tool CLI")
-    parser.add_argument("action", help="Command to execute", nargs="?")
+    parser.add_argument("command", nargs="?", help="Command to execute", choices=["start", "help"])
 
     args = parser.parse_args()
 
-    if args.action == "json-tool start":  # FIXED
-        handle_selection()
+    if args.command == "start":
+        handle_actions_menu()
+    elif args.command == "help":
+        helps_menu()
     else:
-        print("❌ Unknown command. Use 'json-tool start' to begin.")
+        parser.print_help()
 
 if __name__ == "__main__":
     main()
-
-
