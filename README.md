@@ -2,9 +2,9 @@
 
 'json-tool' is a CLI-based program that facilitates the management process of JSON file in terms of create, read, update, and delete. As for now as I'm busy with other things, this tool is available only for direct changing on JSON file by directly giving input to the command line. In the future, features like read/write content in bulk from text file (.txt) will be introduced.
 
-## 📥 Download
+## Download
 
-[![Latest Release](https://img.shields.io/github/v/release/wsomad/json-tool?label=Download)](https://github.com/wsomad/json-tool/releases/v1.0.0)
+[![Latest Release](https://img.shields.io/github/v/release/wsomad/json-tool?include_prereleases)](https://github.com/wsomad/json-tool/releases/v1.0.0)
 
 ## Tech Stack
 
