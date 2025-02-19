@@ -4,7 +4,7 @@
 
 ## Tech Stack
 
-= **CLI:** Only Python
+- **CLI:** Only Python
 
 - **CI/CD:** GitHub Actions
 
