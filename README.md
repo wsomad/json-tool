@@ -4,7 +4,7 @@
 
 ## 📥 Download
 
-[![Latest Release](https://img.shields.io/github/v/release/wsomad/json-tool?label=Download)](https://github.com/wsomad/json-tool/releases/latest)
+[![Latest Release](https://img.shields.io/github/v/release/wsomad/json-tool?label=Download)](https://github.com/wsomad/json-tool/releases/v1.0.0)
 
 ## Tech Stack
 
