@@ -1,4 +1,5 @@
 import json
+import os
 
 class JSONHandler:
     # Init function
@@ -7,10 +8,14 @@ class JSONHandler:
 
     # Load file function
     def load_json(self):
+        if not os.path.exists(self.file_path):
+            print(f"[Error] The file '{self.file_path}' does not exist.")
+            return None
         try:
             with open(self.file_path, "r", encoding="utf-8") as file:
                 return json.load(file)
-        except (FileNotFoundError, json.JSONDecodeError):
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            print(f"[Error] Couldn't load this JSON file: {str(e)}")
             return None
 
     # Save file function
@@ -23,42 +28,45 @@ class JSONHandler:
 
     # Convert value function
     def convert_value(self, flag, value):
-        if flag == "-o":
-            if value:
-                data_dict = {}
-                key_value_pairs = value.split()
-                i = 0
+        try:
+            if flag == "-o":
+                if value:
+                    data_dict = {}
+                    key_value_pairs = value.split()
+                    i = 0
 
-                while i < len(key_value_pairs):
-                    pair = key_value_pairs[i]
-                    try:
-                        key, val = pair.split("=")
-                        if val.startswith('-'):
-                            flag_type = val
-                            value = key_value_pairs[i + 1]
-                            data_dict[key] = self.convert_value(flag_type, value) 
-                        else:
-                            data_dict[key] = val
-                        i += 2
-                    except ValueError:
-                        print(f"Error: Invalid key=value pair '{pair}'")
-                        break 
-                return data_dict  
-            return {}
-        elif flag == "-a":
-            return []
-        elif flag == "-s":
-            return str(value)
-        elif flag == "-i":
-            return int(value)
-        elif flag == "-f":
-            return float(value)
-        elif flag == "-b":
-            return value.lower() in ("true", "1", "yes")
-        elif flag == "-c":
-            return value[0] if value else ""
-        else:
-            return value
+                    while i < len(key_value_pairs):
+                        pair = key_value_pairs[i]
+                        try:
+                            key, val = pair.split("=")
+                            if val.startswith('-'):
+                                flag_type = val
+                                value = key_value_pairs[i + 1]
+                                data_dict[key] = self.convert_value(flag_type, value) 
+                            else:
+                                data_dict[key] = val
+                            i += 2
+                        except ValueError:
+                            print(f"[Error] Invalid key=value pair '{pair}'")
+                            break 
+                    return data_dict  
+                return {}
+            elif flag == "-a":
+                return []
+            elif flag == "-s":
+                return str(value)
+            elif flag == "-i":
+                return int(value)
+            elif flag == "-f":
+                return float(value)
+            elif flag == "-b":
+                return value.lower() in ("true", "1", "yes")
+            elif flag == "-c":
+                return value[0] if value else ""
+            else:
+                return value
+        except ValueError as e:
+            return None
 
     # Identify reference ID function
     def set_identity(self, id):
@@ -74,7 +82,7 @@ class JSONHandler:
     def _add_nested_key(self, obj, key_path, value):
         keys = key_path.split(".")
         current = obj
-
+        
         if current:
             for k in keys[:-1]:
                 if isinstance(current, dict) and k in current:
@@ -113,6 +121,10 @@ class JSONHandler:
     # Add attribute function
     def add_attribute(self, primary_key, key_path, flag, value):
         value = self.convert_value(flag, value)
+        if value is None:
+            print(f"[Error] Unable to add key-value pair because that value with flag '{flag}' is invalid.")  
+            return "[Error] Operation aborted due to invalid value."
+
         data = self.load_json()
 
         if isinstance(data, list):
@@ -120,19 +132,24 @@ class JSONHandler:
                 if isinstance(obj, dict) and obj.get("id") == primary_key:
                     if self._add_nested_key(obj, key_path, value):
                         self.save_json(data)
-                        return f"Successfully added [{key_path}] with value {value}' for ID [{primary_key}]."
+                        return f"[Success] Successfully added value to key [{key_path}]:[{value}] under reference key [{primary_key}]."
         return f"No object with ID:{primary_key} found."
 
     # Update attribute function
     def update_attribute(self, primary_key, key_path, flag, value):
         value = self.convert_value(flag, value) 
+        if value is None:
+            print(f"[Error] Unable to update key-value pair because that value with flag '{flag}' is invalid.")  
+            return "[Error] Operation aborted due to invalid value."
+        
         data = self.load_json()
+
         if isinstance(data, list):
             for obj in data:
                 if isinstance(obj, dict) and obj.get("id") == primary_key:
                     if self._update_nested_key(obj, key_path, value):
                         self.save_json(data)
-                        return f"Successfully updated [{key_path}] with value [{value}] for ID [{primary_key}]."
+                        return f"[Success] Successfully updated value [{value}] to key [{key_path}] under reference key [{primary_key}]."
                     else:
                         return f"Invalid key path '{key_path}' for ID '{primary_key}'."
         return f"No object with ID:{primary_key} found."
@@ -170,10 +187,10 @@ class JSONHandler:
         if isinstance(data, list):
             new_data = [obj for obj in data if isinstance(obj, dict) and obj.get("id") != primary_key]
             if len(new_data) == len(data):
-                return f"No object with ID:{primary_key} found."
+                return f"[Error] No object with reference key={primary_key} found."
             self.save_json(new_data)
-            return f"Successfully deleted object with ID '{primary_key}'."
-        return f"Data is in an unsupported format."
+            return f"[Success] Successfully deleted object with reference key='{primary_key}'."
+        return f"[Error] Data is in an unsupported format."
 
     # Read all reference IDs
     def read_all_reference_ids(self):

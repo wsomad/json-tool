@@ -1,6 +1,7 @@
 import argparse
 import textwrap
 from json_handler import JSONHandler
+import os
 
 # Display actions menu
 def actions_menu():
@@ -23,7 +24,12 @@ def helps_menu():
         help                Show help message [json-tool help]
 
     How to:
-        nested key          Specify nested keys in object [user.profile.name]
+        JSON file:
+            read            Read JSON file [DRIVE:/path-to-json-file/.json] or [DRIVE:\\path-to-json-file\\.json]
+            write           No need to think. Automatically write and save
+
+        JSON object:
+            nested key      Use '.' to specify nested keys in object [user.profile.name]
 
     Helpers:
         -o key=value        Create an object with key-value pairs [-o key1=-s value1 key2=-i 42 key3=-b true]
@@ -32,7 +38,7 @@ def helps_menu():
         -f value            Create a float value [-f 9.8]
         -b value            Create a boolean value [-b true]
         -c value            Create a character value [-c j]
-        -a                  Create an array [-a empty]
+        -a value            Create an array [-a]
 
     """
     print(textwrap.dedent(help_text))
@@ -45,7 +51,15 @@ def parse_input_value(input_str):
 
 # Handle actions menu
 def handle_actions_menu():
-    handler = JSONHandler("examples/sample.json")
+    file_path = input("\nPlease specify directory path of JSON file> ").strip()
+    if not os.path.exists(file_path):
+        print(f"Error: The file [{file_path}] does not exist.")
+        return
+    else:
+        print(f"[{file_path}] is identified. Let's start!")
+
+    handler = JSONHandler(file_path)
+    # handler = JSONHandler("examples/sample.json")
     
     while True:
         actions_menu()
@@ -53,7 +67,7 @@ def handle_actions_menu():
 
         if choice == "1":  # Add a new attribute
             id = input("\nPlease specify reference ID of object> ").strip()
-            key = input(f"[{id}] - Please specify key to update> ").strip()
+            key = input(f"[{id}] - Please specify key to add> ").strip()
             value_input = input(f"[{id}] - Please specify new value for [{key}]> ").strip()
             flag, value = parse_input_value(value_input)
             print(handler.add_attribute(id, key, flag, value))
@@ -77,7 +91,7 @@ def handle_actions_menu():
             primary_keys = handler.read_all_reference_ids()
             print("All Reference IDs:")
             for index, key in enumerate(primary_keys, start=1):
-                print(f"   [{index}] {key}")
+                print(f"[{index}] {key}")
 
         elif choice == "6":  # Show help menu
             print("\nExiting... Bye Bye!")
