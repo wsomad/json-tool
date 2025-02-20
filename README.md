@@ -14,7 +14,7 @@
 
 ## Scope
 
-- **Developer:** Able to manage their JSON file privately on local machine as they can download the json-tool.exe program.
+- **Developer:** Able to make changes on their JSON file privately on local machine.
 
 ## Usage & Options
 ### How to Start:
